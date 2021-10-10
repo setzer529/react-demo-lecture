@@ -1,15 +1,12 @@
-import {Container, Row, Col, Form, Button} from 'react-bootstrap';
+import {Container, Row, Col, Form, Button, Alert} from 'react-bootstrap';
 import {useState} from 'react';
 
-function Login({handleLoginRequest}) {
+function Login({handleLoginRequest, loginPending, loginFailure}) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
     function handleLogin(event) {
         event.preventDefault();
-        //todo remove console logs
-        console.log(`user: ${username}`);
-        console.log(`password: ${password}`);
         handleLoginRequest(username, password);
 
 
@@ -45,13 +42,17 @@ function Login({handleLoginRequest}) {
                         <Form.Group className="mb-3" controlId="formBasicCheckbox">
                             <Form.Check type="checkbox" label="Check me out"/>
                         </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Submit
+                        <Button variant="primary" type="submit" disabled={loginPending}>
+                            {loginPending ? 'Logging in...' : 'Submit'}
                         </Button>
                     </Form>
                 </Col>
             </Row>
-
+            {loginFailure && <Row>
+                <Col>
+                    <Alert variant='danger'>Invalid Login</Alert>
+                </Col>
+            </Row>}
         </Container>
     );
 }

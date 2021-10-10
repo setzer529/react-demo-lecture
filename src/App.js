@@ -1,70 +1,51 @@
-import {Container, Row, Col, Form, Button} from 'react-bootstrap';
+import {Container} from 'react-bootstrap';
 import Login from './components/Login.js';
-import {useState, useEffect} from 'react';
 import Memos from './components/Memos.js'
-import {requestLogin} from './Services/user.js';
-import {requestMemos, createMemo, deleteMemo} from './Services/memos.js';
+import {createMemo, deleteMemo} from './Services/memos.js';
+import {connect} from 'react-redux';
+import {initiateLogin, logout} from './modules/user.js'
+import {initiateGetMemos} from './modules/memos.js'
 
-function App() {
-    const [token, setToken] = useState('');
-    const [memos, setMemos] = useState([]);
+function App({
+                 dispatch,
+                 loginPending,
+                 loginFailure,
+                 token,
+                 getMemosPending,
+                 getMemosFailure,
+                 memos
+             }) {
+
 
     function handleError(error) {
         console.log('Ya Dun Goofed');
     }
 
     function handleRequestMemos() {
-        console.log('requesting memos');
-        requestMemos(token).then(data => data.json(), handleError).then(json => {
-            console.log(json)
-            setMemos(json.memo_list)
-        }, handleError).catch(handleError)
-
+        dispatch(initiateGetMemos())
     }
-
-    useEffect(() => {
-        if (token) {
-            handleRequestMemos()
-        }
-    }, [token])
 
     function handleLoginRequest(username, password) {
-        requestLogin({username, password}).then(data => data.json(), handleError).then(json => {
-            console.log(json.token)
-            if (json.token) {
-                setToken(json.token);
-            } else {
-                console.log(`no token`)
-            }
-        })
-
-
+        dispatch(initiateLogin({username, password}))
     }
 
-
-
-
-// if (username === 'jhowell' && password === 'password') {
-//     setLoggedIn(true);
-// }
 
     function handleLogoutRequest() {
-        setToken('');
+        dispatch(logout())
     }
 
-    async function handleCreateMemo(memo) {
-        await createMemo(token, memo).then(data => data.json(), handleError).then(json => {
-            console.log(json)
-        }).catch(handleError)
-        handleRequestMemos();
-    }
-
-    async function handleDeleteMemo(memo) {
-        await deleteMemo(token, memo).then(data => data.json(), handleError).then(json => {
+    function handleCreateMemo(memo) {
+        createMemo(token, memo).then(data => data.json(), handleError).then(json => {
             console.log(json);
-            // setMemos(memos.filter(item => item.id !== memo.id));
             handleRequestMemos();
-        })
+        }).catch(handleError)
+
+    }
+
+    function handleDeleteMemo(memo) {
+        deleteMemo(token, memo).then(data => data.json(), handleError).then(data => {
+            handleRequestMemos();
+        }).catch(handleError)
     }
 
     return (
@@ -76,10 +57,19 @@ function App() {
                     handleDeleteMemo={handleDeleteMemo}
                     memos={memos}
                 /> :
-                <Login handleLoginRequest={handleLoginRequest}/>
+                <Login
+                    handleLoginRequest={handleLoginRequest}
+                    loginFailure={loginFailure}
+                    loginPending={loginPending}
+                />
             }
+
         </Container>
     );
 }
 
-export default App;
+function mapStateToProps(state) {
+    return {...state.user, ...state.memos}
+}
+
+export default connect(mapStateToProps)(App);

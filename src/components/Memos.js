@@ -1,4 +1,4 @@
-import {Badge, Button, Col, Row, Card, Placeholder, Modal, Form} from 'react-bootstrap';
+import {Badge, Button, Col, Row, Card, Modal, Form} from 'react-bootstrap';
 import {useState} from 'react'
 
 function Memos({handleLogoutRequest, handleCreateMemo, handleDeleteMemo, memos}) {
@@ -67,19 +67,20 @@ function Memos({handleLogoutRequest, handleCreateMemo, handleDeleteMemo, memos})
             <Row>
                 {
                     memos.map(memo => {
-                        return (<Card style={{width: '18rem'}}>
+                        return (
+                            <Card style={{width: '18rem'}} key={memo.id}>
                             <Card.Header>
                                 <Button onClick={() => handleDeleteMemo(memo)}>DELETE!!!</Button>
                             </Card.Header>
                             <Card.Body>
                                 <Card.Subtitle>
-                                    {memo.create_timestamp}
+                                    {memo.create_timestamp.slice(0, 16).replace('T', ' ')}
                                 </Card.Subtitle>
                                 {memo.content}
                             </Card.Body>
                             <Card.Footer>
                                 {memo.tags ? memo.tags.map(tag => {
-                                    return (<Badge className={'m-2'}>tag</Badge>)
+                                    return (<Badge className={'m-2'}>{tag}</Badge>)
                                 }) : console.log('No tags')}
                             </Card.Footer>
                         </Card>)

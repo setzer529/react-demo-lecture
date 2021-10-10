@@ -1,6 +1,7 @@
 const base_url = 'http://localhost:3001/api'
 
 export function requestMemos(token) {
+    console.log(`requestMemos token = ${token}`)
     return fetch(base_url + '/memo', {
         method: 'GET',
         headers: {
@@ -13,7 +14,6 @@ export function requestMemos(token) {
 export function createMemo(token, memo) {
     console.log(token);
     console.log(memo);
-    console.log(memo.memoTags);
     return fetch(base_url + '/memo', {
         method: 'POST',
         headers: {
